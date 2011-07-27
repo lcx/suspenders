@@ -89,9 +89,9 @@ copy_file "README_FOR_SUSPENDERS", "doc/README_FOR_SUSPENDERS"
 
 say "Get ready for bundler... (this will take a while)"
 
-say "Let's use PostgreSQL"
+say "Let's use MySQL"
 
-template "postgresql_database.yml.erb", "config/database.yml", :force => true
+template "mysql_database.yml.erb", "config/database.yml", :force => true
 rake "db:create"
 
 say "Setting up plugins"
