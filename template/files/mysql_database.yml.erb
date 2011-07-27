@@ -1,12 +1,12 @@
-development: &default
-  adapter: mysql
-	username: root
-	password:
-	host: localhost
-	encoding: utf8
+development:
+  adapter: mysql2
   database: <%= app_name %>_development
-  pool: 5
+  username: root
+  password: 
+  host: localhost
+  pool: 8
   reconnect: true
+	encoding: utf8
 
 test: &TEST
   <<: *default
