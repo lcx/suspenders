@@ -46,7 +46,7 @@ def origin
   if ENV['REPO'].present?
     ENV['REPO']
   else
-    "git://github.com/thoughtbot/suspenders.git"
+    "git://github.com/lcx/suspenders.git"
   end
 end
 

@@ -1,0 +1,14 @@
+development: &default
+  adapter: mysql
+	username: root
+	password:
+	host: localhost
+	encoding: utf8
+  database: <%= app_name %>_development
+  pool: 5
+  reconnect: true
+
+test: &TEST
+  <<: *default
+  database: <%= app_name %>_test
+  min_messages: warning
