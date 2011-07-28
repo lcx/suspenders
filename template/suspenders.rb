@@ -117,7 +117,7 @@ copy_file "create_users.rb", "db/migrate/#{Time.now.strftime("%Y%m%d%H%M%S")}_cr
 app_controller = <<-RUBY
   filter_parameter_logging :password
 
-  helper_method :current_user
+  helper_method :current_user_session, :current_user
 
   private
 
@@ -162,7 +162,7 @@ app_controller = <<-RUBY
     session[:return_to] = nil
   end
 RUBY
-inject_into_class "app/controllers/application_controller.rb", "Application", app_controller
+inject_into_class "app/controllers/application_controller.rb", "ApplicationController", app_controller
 #generate "clearance:install"
 #generate "clearance:features"
 
@@ -213,6 +213,12 @@ copy_file "body_class_helper.rb", "app/helpers/body_class_helper.rb"
 say "Setting up a root route"
 
 route "root :to => 'Clearance::Sessions#new'"
+# match 'login' => "user_sessions#new",      :as => :login
+#   match 'logout' => "user_sessions#destroy", :as => :logout
+
+# map.login 'login', :controller => 'user_sessions', :action => 'new'
+# map.logout 'logout', :controller => 'user_sessions', :action => 'destroy'
+
 
 say "Congratulations! You just pulled our suspenders."
 say "Remember to run 'rails generate hoptoad' with your API key."
