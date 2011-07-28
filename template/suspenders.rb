@@ -111,6 +111,7 @@ action_mailer_host "production",  "#{app_name}.com"
 generate "rspec:install"
 generate "cucumber:install", "--rspec --capybara"
 generate "authlogic:session UserSession"
+generate "controller UserSessions"
 copy_file "user.rb", "app/models/user.rb"
 copy_file "create_users.rb", "db/migrate/#{Time.now.strftime("%Y%m%d%H%M%S")}_create_users.rb"
 
@@ -163,6 +164,33 @@ app_controller = <<-RUBY
   end
 RUBY
 inject_into_class "app/controllers/application_controller.rb", "ApplicationController", app_controller
+
+user_session_controller = <<-RUBY
+  before_filter :require_no_user, :only => [:new, :create]
+  before_filter :require_user, :only => :destroy
+
+  def new
+    @user_session = UserSession.new
+  end
+
+  def create
+    @user_session = UserSession.new(params[:user_session])
+    if @user_session.save
+      flash[:notice] = t("Login successful!")
+      redirect_back_or_default users_url
+    else
+      render :action => :new
+    end
+  end
+
+  def destroy
+    current_user_session.destroy
+    flash[:notice] = t("Logout successful!")
+    redirect_back_or_default new_user_session_url
+  end
+RUBY
+
+inject_into_class "app/controllers/user_sessions_controller.rb", "UserSessionsController", user_session_controller
 #generate "clearance:install"
 #generate "clearance:features"
 
@@ -212,12 +240,10 @@ copy_file "body_class_helper.rb", "app/helpers/body_class_helper.rb"
 
 say "Setting up a root route"
 
-route "root :to => 'Clearance::Sessions#new'"
-# match 'login' => "user_sessions#new",      :as => :login
-#   match 'logout' => "user_sessions#destroy", :as => :logout
-
-# map.login 'login', :controller => 'user_sessions', :action => 'new'
-# map.logout 'logout', :controller => 'user_sessions', :action => 'destroy'
+route "resources :user_sessions"
+route "root :to => 'user_sessions#new'"
+route "match 'login' => \"user_sessions#new\",      :as => :login"
+route "match 'logout' => \"user_sessions#destroy\", :as => :logout"
 
 
 say "Congratulations! You just pulled our suspenders."
