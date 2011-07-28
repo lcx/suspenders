@@ -110,10 +110,64 @@ action_mailer_host "production",  "#{app_name}.com"
 
 generate "rspec:install"
 generate "cucumber:install", "--rspec --capybara"
-generate "clearance:install"
-generate "clearance:features"
+generate "authlogic:session UserSession"
+copy_file "user.rb", "app/models/user.rb"
+copy_file "create_users.rb", "db/migrate/#{Time.now.strftime("%Y%m%d%H%M%S")}_create_users.rb"
 
-create_file "public/stylesheets/sass/screen.scss"
+app_controller = <<-RUBY
+  filter_parameter_logging :password
+
+  helper_method :current_user
+
+  private
+
+  def current_user_session
+    logger.debug "ApplicationController::current_user_session"
+    return @current_user_session if defined?(@current_user_session)
+    @current_user_session = UserSession.find
+  end
+
+  def current_user
+    logger.debug "ApplicationController::current_user"
+    return @current_user if defined?(@current_user)
+    @current_user = current_user_session && current_user_session.user
+  end
+
+  def require_user
+    logger.debug "ApplicationController::require_user"
+    unless current_user
+      store_location
+      flash[:notice] = t("You must be logged in to access this page")
+      redirect_to new_user_session_url
+      return false
+    end
+  end
+
+  def require_no_user
+    logger.debug "ApplicationController::require_no_user"
+    if current_user
+      store_location
+      flash[:notice] = t("You must be logged out to access this page")
+      redirect_to account_url
+      return false
+    end
+  end
+
+  def store_location
+    session[:return_to] = request.request_uri
+  end
+
+  def redirect_back_or_default(default)
+    redirect_to(session[:return_to] || default)
+    session[:return_to] = nil
+  end
+RUBY
+inject_into_class "app/controllers/application_controller.rb", "Application", app_controller
+#generate "clearance:install"
+#generate "clearance:features"
+
+#create_file "public/stylesheets/sass/screen.scss"
+copy_file "screen.scss", "public/stylesheets/sass/screen.scss"
 create_file "public/stylesheets/screen.css"
 
 copy_file "factory_girl_steps.rb", "features/step_definitions/factory_girl_steps.rb"

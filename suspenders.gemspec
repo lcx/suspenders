@@ -49,6 +49,9 @@ rush to build something amazing; don't use it if you like missing deadlines.
     template/files/errors.rb
     template/files/factory_girl_steps.rb
     template/files/mysql_database.yml.erb
+    template/files/screen.scss
+    template/files/user.rb
+    template/files/create_users.rb
     template/files/suspenders_gitignore
     template/files/suspenders_layout.html.erb.erb
     template/files/time_formats.rb
