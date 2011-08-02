@@ -3,8 +3,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.rubygems_version = '1.3.5'
 
-  s.name    = 'suspenders'
-  s.version = '0.2.6'
+  s.name    = 'suspenders-lcx'
+  s.version = '0.2.7'
   s.date    = '2011-07-26'
 
   s.summary     = "Generate a Rails app using thoughtbot's best practices."
