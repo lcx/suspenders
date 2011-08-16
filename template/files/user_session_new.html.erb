@@ -1,0 +1,18 @@
+<!--
+  new.html
+
+  Created by Cristian Livadaru on 2011-08-03.
+  Copyright (c) 2011 lcX.at. All rights reserved. -->
+
+	<% form_for @user_session,:html => { :class => "expose"} do |form| %>
+	<%= form.error_messages %>
+		<p>
+			<%= form.label :username, "Username" %>
+			<%= form.text_field :username %>
+		</p>
+		<p>
+			<%= form.label :password, "Password" %>
+			<%= form.password_field :password %>
+			<%= form.submit "Submit" %>
+		</p>
+	<% end %>

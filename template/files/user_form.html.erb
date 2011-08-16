@@ -1,0 +1,28 @@
+<%= form_for @user do |f| %>  
+<%= f.error_messages %>  
+	<p>
+    <%= f.label :username, "Username" %>
+    <%= f.text_field :username %>  
+	</p>
+	<p>
+    <%= f.label :email, "Email" %>
+    <%= f.text_field :email %>  
+	</p>
+	<p>
+    <%= f.label :password, "Password" %>
+    <%= f.password_field :password %>  
+	</p>
+	<p>
+    <%= f.label :password_confirmation, "Confirmation" %>
+    <%= f.password_field :password_confirmation %>  
+	</p>
+	<% if current_user %>
+		<% if current_user.is_admin? %>
+			<p>
+		    <%= f.label :credit, "User Credit in Euro" %>
+		    <%= f.text_field :credit %>  
+			</p>
+		<% end -%>
+	<%end%>
+  <%= f.submit "Submit" %>  
+<% end %>

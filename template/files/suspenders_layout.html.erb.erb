@@ -9,10 +9,10 @@
 <body class="<%%= body_class %>">
 	<div class="content">
 	  <div id="header">
-	    <%% if signed_in? -%>
-	      <%%= link_to "Sign out", sign_out_path, :method => :delete %>
+	    <%% if current_user -%>
+	      <%%= link_to "Sign out", logout_path, :method => :delete %>
 	    <%% else -%>
-	      <%%= link_to "Sign in", sign_in_path %>
+	      <%%= link_to "Sign in", login_path %>
 	    <%% end -%>
 	  </div>
 	  <%%= render 'shared/flashes' -%>

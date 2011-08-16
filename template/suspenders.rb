@@ -67,8 +67,15 @@ run "cp config/environments/production.rb config/environments/staging.rb"
 say "Creating suspenders views"
 
 empty_directory "app/views/shared"
+empty_directory "app/views/users"
 copy_file "_flashes.html.erb", "app/views/shared/_flashes.html.erb"
 copy_file "_javascript.html.erb", "app/views/shared/_javascript.html.erb"
+copy_file "user_session_new.html.erb", "app/views/user_sessions/new.html.erb"
+copy_file "user_form.html.erb", "app/views/users/_user.html.erb"
+copy_file "user_view.html.erb", "app/views/users/new.html.erb"
+copy_file "user_view.html.erb", "app/views/users/edit.html.erb"
+
+
 template "suspenders_layout.html.erb.erb",
          "app/views/layouts/application.html.erb",
          :force => true
@@ -162,6 +169,14 @@ app_controller = <<-RUBY
     redirect_to(session[:return_to] || default)
     session[:return_to] = nil
   end
+  
+  def is_admin
+    if current_user.is_admin?
+    else
+      flash[:error]="You don't have permission to do this"
+      redirect_to root_url
+    end
+  end  
 RUBY
 inject_into_class "app/controllers/application_controller.rb", "ApplicationController", app_controller
 
@@ -190,13 +205,70 @@ user_session_controller = <<-RUBY
   end
 RUBY
 
+user_controller = <<-RUBY
+  before_filter :require_user, :except=>[:new,:create]
+  def new
+	@user = User.new
+  end
+
+  def create
+	@user = User.new(params[:user])
+	if @user.save
+	  flash[:notice] = t("Registration successful.")
+	  redirect_to root_url
+	else
+	  render :action => 'new'
+	end
+  end
+
+  def edit
+	# ==============================================================================================================================
+	# = if it's an admin, load the user from the params else use currentuser, this prevents users from forging other user accounts =
+	# ==============================================================================================================================
+	if (current_user.is_admin?) && (params[:id]!="current")
+	  @user=User.find(params[:id])
+	else
+	  @user = current_user
+	end
+  end
+
+  def update
+	# ==============================================================================================================================
+	# = if it's an admin, load the user from the params else use currentuser, this prevents users from forging other user accounts =
+	# ==============================================================================================================================
+	if current_user.is_admin?
+	  @user=User.find(params[:id])
+	else
+	  @user = current_user
+	end
+	if @user.update_attributes(params[:user])
+	  flash[:notice] = t("Successfully updated profile.")
+	  redirect_to root_url
+	else
+	  render :action => 'edit'
+	end
+  end
+
+  def index
+	if current_user.is_admin?
+	  @users=User.all
+	else
+	  redirect_to root_url
+	end
+  end
+RUBY
+
 inject_into_class "app/controllers/user_sessions_controller.rb", "UserSessionsController", user_session_controller
+generate "controller users"
+#create_file "app/controllers/users_controller.rb"
+inject_into_class "app/controllers/users_controller.rb", "UsersController", user_controller
+
 #generate "clearance:install"
 #generate "clearance:features"
 
 #create_file "public/stylesheets/sass/screen.scss"
-copy_file "screen.scss", "public/stylesheets/sass/screen.scss"
 create_file "public/stylesheets/screen.css"
+copy_file "screen.scss", "public/stylesheets/sass/screen.scss"
 
 copy_file "factory_girl_steps.rb", "features/step_definitions/factory_girl_steps.rb"
 
@@ -241,10 +313,11 @@ copy_file "body_class_helper.rb", "app/helpers/body_class_helper.rb"
 say "Setting up a root route"
 
 route "resources :user_sessions"
+route "resources :users"
 route "root :to => 'user_sessions#new'"
 route "match 'login' => \"user_sessions#new\",      :as => :login"
 route "match 'logout' => \"user_sessions#destroy\", :as => :logout"
-
+run "touch public/stylesheets/sass/screen.scss"
 
 say "Congratulations! You just pulled our suspenders."
 say "Remember to run 'rails generate hoptoad' with your API key."
